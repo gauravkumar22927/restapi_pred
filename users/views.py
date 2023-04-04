@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view , permission_classes ,authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -53,6 +53,30 @@ class AuthenticatedUser(APIView):
     return Response({
       'data' : serializer.data
     })
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def example_view(request, format=None):
+    price = request.data.get('price')
+    mrp = request.data.get('mrp')
+    content = {
+        'status': 'request was permitted',
+        'data' : price - mrp
+    }
+    return Response(content)
+
+class PredictionClass(APIView):
+  authentication_classes = [JWTAuthentication]
+  permission_classes = [IsAuthenticated]
+  def post(self,request):
+    price = request.data.get('price')
+    mrp = request.data.get('mrp')
+
+    return Response({
+      'data' : price - mrp
+    })
+
 @api_view(['POST'])
 def logout(_):
   response = Response()
